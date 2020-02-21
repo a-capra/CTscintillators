@@ -1,0 +1,562 @@
+//
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
+//
+// $Id: CTSciDetectorConstruction.cc,v 1.22 2010-01-22 11:57:03 maire Exp $
+// GEANT4 tag $Name: geant4-09-04-patch-01 $
+//
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo...... 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+ 
+#include "DetectorConstruction.hh"
+#include "MagneticField.hh"
+#include "SciSD.hh"
+#include "DetectorMessenger.hh"
+
+#include "G4RunManager.hh"
+
+#include "G4Material.hh"
+#include "G4Box.hh"
+#include "G4Tubs.hh"
+#include "G4SubtractionSolid.hh"
+#include "G4LogicalVolume.hh"
+#include "G4PVPlacement.hh"
+#include "G4SDManager.hh"
+#include "G4GeometryTolerance.hh"
+#include "G4GeometryManager.hh"
+
+#include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
+
+#include "G4FieldManager.hh"
+
+#include "G4UserLimits.hh"
+
+#include "G4VisAttributes.hh"
+#include "G4Colour.hh"
+
+#include "G4ios.hh"
+
+#include "globals.hh"
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+ 
+DetectorConstruction::DetectorConstruction():
+  solidWorld(0),  logicWorld(0),  physiWorld(0),
+  solidMagnetOut(0), logicMagnetOut(0), physiMagnetOut(0),
+  solidMagnetIn(0), logicMagnetIn(0), physiMagnetIn(0),
+  solidMagnetShield(0), logicMagnetShield(0), physiMagnetShield(0),
+  solidMagnetWinding(0), logicMagnetWinding(0), physiMagnetWinding(0),
+  solidMagnetCover(0), logicMagnetCover(0),
+  solidOVC(0),logicOVC(0),physiOVC(0),
+  solidInner(0),  logicInner(0),  physiInner(0),
+  solidShield(0),  logicShield(0),  physiShield(0),
+  solidWall(0),  logicWall(0),  physiWall(0),
+  solidTrap(0),   logicTrap(0),   physiTrap(0),
+  solidDeg1(0),    logicDeg1(0),    physiDeg1(0),
+  solidDeg2(0),    logicDeg2(0),    physiDeg2(0),
+  solidSci(0),    logicSci(0),    /*physiSci(0),*/
+  NofSci(2),stepLimit(0)
+{
+  //  fWorldLength=3.*m;
+  fWorldLength=5.*m;
+  
+  MagnetOutID=52.*cm; 
+  MagnetOutOD=53.*cm;
+  MagnetOutL=75.*cm;
+  
+  //  MagnetShieldID=45.5*cm;
+  MagnetShieldOD=46.*cm;
+  MagnetShieldL=70.*cm;
+  
+  MagnetWindID=14.5*cm;
+  //MagnetWindOD=15.5*cm;
+  MagnetWindOD=15.*cm;
+  
+  //  MagnetInID=
+  MagnetInOD=45.5*cm;
+  MagnetInL=69.*cm;
+		  
+  MagnetBore=140.*mm;
+  MagnetCover=1.*cm;
+  
+  OVCID=78.*mm;
+  OVCOD=80.*mm;
+  OVCL=150.*cm;
+  
+  //  ShieldID=67.*mm;
+  ShieldOD=70.*mm;
+  ShieldL=70.*cm;
+  
+  WallID=47.*mm;
+  WallOD=50.*mm;
+  WallL=67.*cm;
+ 
+  TrapID=36.5*mm;
+  TrapOD=40.*mm;
+  TrapL=65.*cm;
+  
+  Deg1L=(0.165+0.05)*mm;
+  Deg2L=(0.01+0.03)*mm;
+  
+  OVCVtOffset=-5.*cm;
+  //  OVCHzOffset=-15.*cm;
+  //  OVCVtOffset=0.*cm;
+  OVCHzOffset=0.*cm;
+  
+  fSciX=1.*cm;
+  fSciY=60.*cm;
+  fSciZ=40.*cm;
+  //  NofSci=4;
+  
+  for(G4int i=0;i<NofSci;++i) physiSci[i]=0;
+  
+  for(G4int i=0;i<2;++i) physiMagnetCover[i]=0;
+    
+  leftPadPosX=   60.0*cm;
+  leftPadPosY=    0.0;
+  leftPadPosZ=  -15.0*cm;
+  rightPadPosX=-100.0*cm;
+  rightPadPosY=   5.0*cm;
+  rightPadPosZ= -90.0*cm;
+  
+  fpMagField = new MagneticField(G4ThreeVector(0.,0.,3.*tesla));
+  
+  detectorMessenger = new DetectorMessenger(this);
+
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+ 
+DetectorConstruction::~DetectorConstruction()
+{
+  delete fpMagField;
+  delete detectorMessenger;
+  delete stepLimit;             
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+ 
+G4VPhysicalVolume* DetectorConstruction::Construct()
+{
+  //--------- Material definition ---------
+
+  G4double density;
+  G4int nel;
+
+  G4Element* H  = new G4Element("Hydrogen", "H" ,1., 1.01*g/mole);
+  G4Element* He = new G4Element("Helium",   "He",2., 4.*g/mole);
+  G4Element* C  = new G4Element("Carbon",   "C" ,6., 12.01*g/mole);
+  G4Element* N  = new G4Element("Nitrogen", "N", 7., 14.01*g/mole);
+  G4Element* O  = new G4Element("Oxygen"  , "O", 8., 16.00*g/mole);
+  G4Element* Si = new G4Element("Silicon",  "Si",14.,28.09*g/mole);
+  G4Element* Cr = new G4Element("Chromium", "Cr",24.,52.*g/mole);
+  G4Element* Mn = new G4Element("Manganese","Mn",25.,54.94*g/mole);
+  G4Element* Fe = new G4Element("Iron",     "Fe",26.,55.85*g/mole);
+  G4Element* Ni = new G4Element("Nickel",   "Ni",28.,58.69*g/mole);
+   
+  G4Material* Air = new G4Material("Air", density= 1.29*mg/cm3, nel=2);
+  //  G4Material* Air = new G4Material("Air", density= 0.5*1.29*mg/cm3, nel=2);
+  Air->AddElement(N, 70*perCent);
+  Air->AddElement(O, 30*perCent);
+  
+  //  Vacuum = new G4Material("Vacuum",10.e-10*mg/cm3,2,kStateGas,4.*kelvin,10.e-17*bar);
+  G4Material* Vacuum = new G4Material("Vacuum",10.e-10*mg/cm3,2,kStateGas,4.*kelvin,1.e-12*bar);
+  Vacuum->AddElement(H,0.7);
+  Vacuum->AddElement(He,0.3);
+
+  
+  G4Material* SciMater = new G4Material("Scintillator", density= 1.032*g/cm3, nel=2);
+  SciMater->AddElement(C, 9);
+  SciMater->AddElement(H, 10);
+  
+  G4Material* Aluminium = new G4Material("Aluminium",13.,26.98*g/mole,2.70*g/cm3);
+  //  Aluminium = new G4Material("Aluminium",13.,26.98*g/mole,0.5*2.70*g/cm3);
+  
+  G4Material* Copper = new G4Material("Copper",29.,63.55*g/mole,8.96*g/cm3);
+  G4Material* CopperW = new G4Material("CopperW",29.,63.55*g/mole,0.6*8.96*g/cm3);
+  
+  //  StainlessSteel = new G4Material("StainlessSteel",8.06*g/cm3,6);
+  G4Material* StainlessSteel = new G4Material("StainlessSteel",0.5*8.06*g/cm3,6);
+  StainlessSteel->AddElement(C,  0.001);
+  StainlessSteel->AddElement(Si, 0.007);
+  StainlessSteel->AddElement(Cr, 0.18);
+  StainlessSteel->AddElement(Mn, 0.01);
+  StainlessSteel->AddElement(Fe, 0.712);
+  StainlessSteel->AddElement(Ni, 0.09);
+  
+  G4Material* Beryllium = new G4Material("Beryllium",4,9.01*g/mole,1.85*g/cm3);
+  
+  //--------- Definitions of Solids, Logical Volumes, Physical Volumes ---------
+    
+  //--------------------------------------------------------------------
+  // Option to switch on/off checking of volumes overlaps
+  G4bool checkOverlaps = true;
+
+  //------------------------------ 
+  // World
+  //------------------------------ 
+
+  //   G4double HalfWorldLength = 0.5*fWorldLength;
+  //  
+  //   G4GeometryManager::GetInstance()->SetWorldMaximumExtent(fWorldLength);
+  //   G4cout << "Computed tolerance = "
+  //          << G4GeometryTolerance::GetInstance()->GetSurfaceTolerance()/mm
+  //          << " mm" << G4endl;
+
+  solidWorld= new G4Box("world",0.5*fWorldLength,0.5*fWorldLength,0.5*fWorldLength);
+  logicWorld= new G4LogicalVolume( solidWorld, Air, "World", 0, 0, 0);
+
+  
+  //  Must place the World Physical volume unrotated at (0,0,0).
+  // 
+  physiWorld = new G4PVPlacement(0,               // no rotation
+				 G4ThreeVector(), // at (0,0,0)
+				 logicWorld,      // its logical volume
+				 "World",         // its name
+				 0,               // its mother  volume
+				 false,           // no boolean operations
+				 0,               // copy number
+				 checkOverlaps);  // checking volumes overlaps
+  //------------------------------ 
+  // Magnet Bore
+  //------------------------------
+  
+  G4Tubs* Bore = new G4Tubs("MagnetOut",0.,0.5*MagnetBore,0.5*MagnetOutL,0.*deg,360.*deg);
+				 
+  //------------------------------ 
+  // Magnet Outer
+  //------------------------------
+  
+  solidMagnetOut = new G4Tubs("MagnetOut",0.5*MagnetOutID,0.5*MagnetOutOD,0.5*MagnetOutL,0.*deg,360.*deg);
+  logicMagnetOut = new G4LogicalVolume(solidMagnetOut,Aluminium,"MagnetOut",0,0,0);
+  physiMagnetOut = new G4PVPlacement(0,G4ThreeVector(),logicMagnetOut,"MagnetOut",logicWorld,false,0,checkOverlaps);
+   
+  //--------------------------------------------------------------------
+  //--------------------------------------------------------------------
+  // !!! LOCAL MAGNETIC FIELD !!!
+  logicMagnetOut->SetFieldManager(fpMagField->GetLocalFieldManager(),true);
+  // !!!!!!!!!!!!!!!!!!!!
+  //--------------------------------------------------------------------
+   
+  //------------------------------ 
+  // Magnet Inner
+  //------------------------------
+   
+  G4Tubs* Inner = new G4Tubs("Inner",0.,0.5*MagnetInOD,0.5*MagnetInL,0.*deg,360.*deg);
+  solidMagnetIn = new G4SubtractionSolid("MagnetIn", Inner, Bore, 0, G4ThreeVector(0.,OVCVtOffset,0.));
+  logicMagnetIn = new G4LogicalVolume(solidMagnetIn,Air,"MagnetIn",0,0,0);
+  physiMagnetIn = new G4PVPlacement(0,G4ThreeVector(),logicMagnetIn,"MagnetIn",logicMagnetOut,false,0,checkOverlaps);
+   
+  //------------------------------ 
+  // Magnet Radiation Shield
+  //------------------------------
+   
+  G4Tubs* Shield = new G4Tubs("Shield",0.,0.5*MagnetShieldOD,0.5*MagnetShieldL,0.*deg,360.*deg);
+  solidMagnetShield = new G4SubtractionSolid("MagnetShield",Shield,solidMagnetIn);
+  logicMagnetShield = new G4LogicalVolume(solidMagnetShield,Aluminium,"MagnetShield",0,0,0);
+  physiMagnetShield = new G4PVPlacement(0,G4ThreeVector(),logicMagnetShield,"MagnetShield",logicMagnetOut,false,0,checkOverlaps);
+   
+  //------------------------------ 
+  // Magnet Windings
+  //------------------------------
+   
+  solidMagnetWinding = new G4Tubs("MagnetWinding",0.5*MagnetWindID,0.5*MagnetWindOD,0.5*WallL,0.*deg,360.*deg);
+  logicMagnetWinding = new G4LogicalVolume(solidMagnetWinding,CopperW,"MagnetWinding",0,0,0);
+  physiMagnetWinding = new G4PVPlacement(0,G4ThreeVector(0.,OVCVtOffset,0.),logicMagnetWinding,"MagnetWinding",logicMagnetOut,false,0,checkOverlaps);
+   
+  //------------------------------ 
+  // Magnet Side Covers
+  //------------------------------
+   
+  G4Tubs* Cover = new G4Tubs("Cover",0.,0.5*MagnetOutOD,0.5*MagnetCover,0.*deg,360.*deg);
+  solidMagnetCover = new G4SubtractionSolid("MagnetCover", Cover, Bore, 0, G4ThreeVector(0.,OVCVtOffset,0.));
+  logicMagnetCover = new G4LogicalVolume(solidMagnetCover,Aluminium,"MagnetIn",0,0,0);
+  physiMagnetCover[0] = new G4PVPlacement(0,G4ThreeVector(0.,0.,-0.5*(MagnetOutL+MagnetCover)),logicMagnetCover,"MagnetCover1",logicWorld,false,0,checkOverlaps);
+  physiMagnetCover[1] = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.5*(MagnetOutL+MagnetCover)),logicMagnetCover,"MagnetCover2",logicWorld,false,1,checkOverlaps);
+      
+  
+  //------------------------------ 
+  // OVC
+  //------------------------------
+ 
+  solidOVC = new G4Tubs("OVC",0.5*OVCID,0.5*OVCOD,0.5*OVCL,0.*deg,360.*deg); 
+  logicOVC = new G4LogicalVolume(solidOVC,StainlessSteel,"OVC",0,0,0);
+  physiOVC = new G4PVPlacement(0,G4ThreeVector(0.,OVCVtOffset,OVCHzOffset),logicOVC,"OVC",logicMagnetOut,false,0,checkOverlaps);
+				 
+  //------------------------------ 
+  // Inner Volume
+  //------------------------------
+   
+  solidInner = new G4Tubs("Inner",0.,0.5*OVCID,0.5*OVCL,0.*deg,360.*deg);
+  logicInner = new G4LogicalVolume(solidInner,Vacuum,"Inner",0,0,0);
+  physiInner = new G4PVPlacement(0,               // no rotation
+				 G4ThreeVector(),  // at (x,y,z)
+				 logicInner,     // its logical volume				  
+				 "Inner",        // its name
+				 logicOVC,      // its mother  volume
+				 false,           // no boolean operations
+				 0,checkOverlaps);              // copy number
+  //------------------------------ 
+  // 40 K Heat Shield
+  //------------------------------
+ 
+  solidShield = new G4Tubs("Shield",0.5*ShieldID,0.5*ShieldOD,0.5*ShieldL,0.*deg,360.*deg); 
+  logicShield = new G4LogicalVolume(solidShield,Copper,"Shield",0,0,0);
+  physiShield = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),logicShield,"Shield",logicInner,false,0,checkOverlaps);
+  
+  //------------------------------ 
+  // Trap Vacuum Wall
+  //------------------------------
+ 
+  solidWall = new G4Tubs("Wall",0.5*WallID,0.5*WallOD,0.5*WallL,0.*deg,360.*deg); 
+  logicWall = new G4LogicalVolume(solidWall,Copper,"Wall",0,0,0);
+  physiWall = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),logicWall,"Wall",logicInner,false,0,checkOverlaps);
+  
+  
+  //------------------------------ 
+  // Electrodes
+  //------------------------------
+ 
+  solidTrap = new G4Tubs("trap",0.5*TrapID,0.5*TrapOD,0.5*TrapL,0.*deg,360.*deg); 
+  logicTrap = new G4LogicalVolume(solidTrap,Aluminium,"Trap",0,0,0);
+  physiTrap = new G4PVPlacement(0,G4ThreeVector(0.,0.,0.),logicTrap,"trap",logicInner,false,0,checkOverlaps);
+  
+  // Degrader Position
+  G4double Deg2Z=-0.5*TrapL+0.5*Deg2L;
+  G4double Deg1Z=Deg2Z+0.5*Deg1L;
+  
+  //------------------------------ 
+  // Degrader 1: Faraday Cup + Vacuum Window
+  //------------------------------
+ 
+  solidDeg1 = new G4Tubs("degrader1",0.,0.5*TrapID,0.5*Deg1L,0.*deg,360.*deg); 
+  logicDeg1 = new G4LogicalVolume(solidDeg1,Beryllium,"Degrader1",0,0,0);
+  physiDeg1 = new G4PVPlacement(0,G4ThreeVector(0.,0.,Deg1Z),logicDeg1,"degrader1",logicTrap,false,0,checkOverlaps);
+  
+  //------------------------------ 
+  // Degrader 2: Radiation shield + Tunable degrader
+  //------------------------------
+ 
+  solidDeg2 = new G4Tubs("degrader2",0.,0.5*TrapID,0.5*Deg2L,0.*deg,360.*deg); 
+  logicDeg2 = new G4LogicalVolume(solidDeg2,Aluminium,"Degrader2",0,0,0);
+  physiDeg2 = new G4PVPlacement(0,G4ThreeVector(0.,0.,Deg2Z),logicDeg2,"degrader2",logicTrap,false,0,checkOverlaps);
+
+  //------------------------------ 
+  // Scintillators
+  //------------------------------
+  
+  //  solidSci = new G4Box("Sci",0.5*fSciX,0.5*fSciY,0.5*fSciZ);
+  solidSci = new G4Box("Sci",fSciX,0.5*fSciY,0.5*fSciZ);
+  logicSci = new G4LogicalVolume(solidSci,SciMater,"Sci",0,0,0);
+    
+  //   physiSci = new G4PVPlacement(0,G4ThreeVector(20.*cm,0.,0.),logicSci,"Sci",logicWorld,false,0);
+  //   physiSci = new G4PVPlacement(0,G4ThreeVector(20.*cm+fSciX,0.,0.),logicSci,"Sci",logicWorld,false,1);
+  //   physiSci = new G4PVPlacement(0,G4ThreeVector(-20.*cm,0.,0.),logicSci,"Sci",logicWorld,false,2);
+  //   physiSci = new G4PVPlacement(0,G4ThreeVector(-20.*cm-fSciX,0.,0.),logicSci,"Sci",logicWorld,false,3);
+   
+  // LEFT PAD by looking from AD
+  physiSci[0] = new G4PVPlacement(0,G4ThreeVector(leftPadPosX,leftPadPosY,leftPadPosZ),logicSci,"SciLeft",logicWorld,false,0,checkOverlaps);
+  // RIGHT PAD
+  physiSci[1] = new G4PVPlacement(0,G4ThreeVector(rightPadPosX,rightPadPosY,rightPadPosZ),logicSci,"SciRight",logicWorld,false,1,checkOverlaps);
+  
+  //------------------------------------------------ 
+  // Sensitive detectors
+  //------------------------------------------------ 
+
+  G4SDManager* SDman = G4SDManager::GetSDMpointer();
+
+  G4String SciSDname = "CTSci";
+  SciSD* scintillators = new SciSD( SciSDname );
+  SDman->AddNewDetector( scintillators );
+  logicSci->SetSensitiveDetector( scintillators );
+
+  //--------- Visualization attributes -------------------------------
+
+  G4VisAttributes* WorldVisAtt= new G4VisAttributes(false);
+  logicWorld ->SetVisAttributes(WorldVisAtt);
+  
+  G4VisAttributes* MagOutVisAtt= new G4VisAttributes(G4Colour(0.0,1.0,0.0)); 
+  logicMagnetOut ->SetVisAttributes(MagOutVisAtt);
+  
+  G4VisAttributes* MagShlVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0)); 
+  //  G4VisAttributes* MagShlVisAtt= new G4VisAttributes(false); 
+  logicMagnetShield ->SetVisAttributes(MagShlVisAtt);
+  
+  G4VisAttributes* MagInVisAtt= new G4VisAttributes(G4Colour(0.0,1.0,1.0)); 
+  logicMagnetIn ->SetVisAttributes(MagInVisAtt);
+  
+  G4VisAttributes* MagWindVisAtt= new G4VisAttributes(G4Colour(.75,.55,0.0)); 
+  logicMagnetWinding ->SetVisAttributes(MagWindVisAtt);
+  
+  G4VisAttributes* MagCovVisAtt= new G4VisAttributes(false); 
+  logicMagnetCover ->SetVisAttributes(MagCovVisAtt);
+  
+  G4VisAttributes* TrpVisAtt= new G4VisAttributes(G4Colour(0.0,0.0,1.0)); 
+  logicTrap ->SetVisAttributes(TrpVisAtt);
+  
+  G4VisAttributes* InnVisAtt= new G4VisAttributes(G4Colour(0.0,1.0,1.0)); 
+  logicInner ->SetVisAttributes(InnVisAtt);
+  
+  G4VisAttributes* SciVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0)); 
+  logicSci->SetVisAttributes(SciVisAtt);
+  
+  G4VisAttributes* OVCVisAtt = new G4VisAttributes(G4Colour(1.0,1.0,0.0));
+  logicOVC->SetVisAttributes(OVCVisAtt);
+  
+  G4VisAttributes* ShlVisAtt = new G4VisAttributes(G4Colour(1.0,1.0,1.0));
+  logicShield->SetVisAttributes(ShlVisAtt);
+  
+  G4VisAttributes* WllVisAtt = new G4VisAttributes(G4Colour(2.0,2.0,0.0));
+  logicWall->SetVisAttributes(WllVisAtt);
+  
+  G4VisAttributes* Deg1VisAtt = new G4VisAttributes(G4Colour(1.0,0.0,0.0));
+  //  G4VisAttributes* Deg1VisAtt = new G4VisAttributes(false);
+  logicDeg1->SetVisAttributes(Deg1VisAtt);
+  
+  //  G4VisAttributes* Deg2VisAtt = new G4VisAttributes(G4Colour(2.0,0.0,0.0));
+  G4VisAttributes* Deg2VisAtt = new G4VisAttributes(false);
+  logicDeg2->SetVisAttributes(Deg2VisAtt);
+  
+  // //--------- example of User Limits -------------------------------
+  // 
+  //   // below is an example of how to set tracking constraints in a given
+  //   // logical volume(see also in N02PhysicsList how to setup the processes
+  //   // G4StepLimiter or G4UserSpecialCuts).
+  //     
+  //   // Sets a max Step length in the tracker region, with G4StepLimiter
+  //   //
+  //   G4double maxStep = 0.5*OVCWidth;
+  //   stepLimit = new G4UserLimits(maxStep);
+  //   logicTracker->SetUserLimits(stepLimit);
+  //   
+  //   // Set additional contraints on the track, with G4UserSpecialCuts
+  //   //
+  //   // G4double maxLength = 2*fTrackerLength, maxTime = 0.1*ns, minEkin = 10*MeV;
+  //   // logicTracker->SetUserLimits(new G4UserLimits(maxStep,maxLength,maxTime,
+  //   //                                               minEkin));
+  
+  return physiWorld;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::SetLeftPadPosition(G4double posX,G4double posY,G4double posZ)
+{
+  physiSci[0]->SetTranslation(G4ThreeVector(posX,posY,posZ));
+  //   G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+			     
+void DetectorConstruction::SetRightPadPosition(G4double posX,G4double posY,G4double posZ)
+{
+  physiSci[1]->SetTranslation(G4ThreeVector(posX,posY,posZ));
+  //   G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+ 
+// void CTSciDetectorConstruction::setTargetMaterial(G4String materialName)
+// {
+//   // search the material by its name 
+//   G4Material* pttoMaterial = G4Material::GetMaterial(materialName);  
+//   if (pttoMaterial)
+//      {TargetMater = pttoMaterial;
+//       logicTarget->SetMaterial(pttoMaterial); 
+//       G4cout << "\n----> The target is " << fTargetLength/cm << " cm of "
+//              << materialName << G4endl;
+//      }             
+// }
+//  
+// //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// 
+// void CTSciDetectorConstruction::setStainlessSteelial(G4String materialName)
+// {
+//   // search the material by its name 
+//   G4Material* pttoMaterial = G4Material::GetMaterial(materialName);  
+//   if (pttoMaterial)
+//      {StainlessSteel = pttoMaterial;
+//       logicOVC->SetMaterial(pttoMaterial); 
+//       G4cout << "\n----> The OVCs are " << OVCWidth/cm << " cm of "
+//              << materialName << G4endl;
+//      }             
+// }
+//  
+// //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//  
+// void CTSciDetectorConstruction::SetMagField(G4double fieldValue)
+// {
+//   fpMagField->SetMagFieldValue(fieldValue);  
+// }
+// 
+// //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+// 
+// void CTSciDetectorConstruction::SetMaxStep(G4double maxStep)
+// {
+//   if ((stepLimit)&&(maxStep>0.)) stepLimit->SetMaxAllowedStep(maxStep);
+// }
+// 
+// //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::SetLeftPadPosX(G4double pos)
+{
+  physiSci[0]->SetTranslation(G4ThreeVector(pos,leftPadPosY,leftPadPosZ));
+  //	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::SetLeftPadPosY(G4double pos)
+{
+  physiSci[0]->SetTranslation(G4ThreeVector(leftPadPosX,pos,leftPadPosZ));
+  //	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::SetLeftPadPosZ(G4double pos)
+{
+  physiSci[0]->SetTranslation(G4ThreeVector(leftPadPosX,leftPadPosY,pos));
+  //	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+				
+void DetectorConstruction::SetRightPadPosX(G4double pos)
+{
+  physiSci[1]->SetTranslation(G4ThreeVector(pos,rightPadPosY,rightPadPosZ));
+  //	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void DetectorConstruction::SetRightPadPosY(G4double pos)
+{
+	
+  physiSci[1]->SetTranslation(G4ThreeVector(rightPadPosX,pos,rightPadPosZ));
+  //	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}	
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+void DetectorConstruction::SetRightPadPosZ(G4double pos)
+{
+  physiSci[1]->SetTranslation(G4ThreeVector(rightPadPosX,rightPadPosY,pos));
+  //	G4RunManager::GetRunManager()->GeometryHasBeenModified();
+}
+

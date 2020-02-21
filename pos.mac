@@ -1,0 +1,8 @@
+/run/beamOn 1
+
+/scintillator/right/setPos -80 0 -5 cm
+/run/beamOn 1
+
+/scintillator/right/setPos -80 0 15 cm
+/run/beamOn 1
+
