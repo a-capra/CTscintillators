@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(CTSci)
 
 #----------------------------------------------------------------------------
@@ -25,8 +25,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 #----------------------------------------------------------------------------
 # Find ROOT and setup include directory
-#  SET(CMAKE_MODULE_PATH /home/andrea/g4work/geant4.9.6/cmake/Modules)
-
 find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIR})
 EXECUTE_PROCESS(COMMAND root-config --cflags OUTPUT_VARIABLE ROOT_CXX_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -36,7 +34,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}")
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 #
-
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
@@ -64,7 +61,7 @@ set(CTSci_SCRIPTS
 foreach(_script ${CTSci_SCRIPTS})
   configure_file(
     ${PROJECT_SOURCE_DIR}/${_script}
-    ${PROJECT_BINARY_DIR}/${_script}
+    ${PROJECT_SOURCE_DIR}/bin/${_script}
     COPYONLY
     )
 endforeach()
