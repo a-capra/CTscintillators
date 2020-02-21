@@ -11,5 +11,4 @@ I generated 10^5 annihilation and obtained the following geometric efficiency fo
 
 This means that if you get 10000 counts in your dump, you have annihilated ~51800 pbars.
 
-Nov 26 2016.
 So we trap something like 250k antiprotons per shot in Nov 26 2016.
