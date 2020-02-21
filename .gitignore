@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# cmake3 folders
+build
+bin
