@@ -1,0 +1,59 @@
+# default position in cm is 
+# left	60.0*cm;
+# 	0.0;
+#	-15.0*cm;
+# 
+# rigth	-100.0*cm;
+# 	5.0*cm;
+#	-90.0*cm;
+/run/beamOn 100000
+
+# scan X
+/scintillator/right/setPos -30 5 -90 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -40 5 -90 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -60 5 -90 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -80 5 -90 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -120 5 -90 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -140 5 -90 cm
+/run/geometryModified
+/run/beamOn 100000
+
+# scan Z
+/scintillator/right/setPos -100 5 10 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -100 5 -10 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -100 5 -30 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -100 5 -60 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -100 5 -120 cm
+/run/geometryModified
+/run/beamOn 100000
+
+/scintillator/right/setPos -100 5 -150 cm
+/run/geometryModified
+/run/beamOn 100000
