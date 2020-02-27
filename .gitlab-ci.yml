@@ -7,7 +7,7 @@ deployment:
     stage: build
 
     before_script:
-	- . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
+        - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
 
     script:
         - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
