@@ -15,7 +15,7 @@ deployment:
         - rm -rf build
         - mkdir build
         - cd build
-        - cmake3 .. -DCMAKE_INSTALL_PREFIX=..
-        - cmake3 --build . --target install
+        - cmake .. -DCMAKE_INSTALL_PREFIX=..
+        - cmake --build . --target install
 
      
