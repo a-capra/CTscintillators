@@ -1,4 +1,4 @@
-image: rootproject/root-cc7
+image: fedora
 
 stages: 
     - build
@@ -6,13 +6,12 @@ stages:
 deployment:
     stage: build
 
-    before_script:     #Set up root and dependancies     
-        # - . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.14.02/x86_64-fedora28-gcc81-opt/root/bin/thisroot.sh
-        - . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.18.04/x86_64-centos7-gcc48-opt/bin/thisroot.sh
-        - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
+    before_script:
+	- . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
 
     script:
-        - echo "Building"
+        - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
+        - echo "Building" 
         - rm -rf build
         - mkdir build
         - cd build
