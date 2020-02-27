@@ -1,4 +1,4 @@
-image: fedora
+image: cern/cc7-base
 
 stages: 
     - build
