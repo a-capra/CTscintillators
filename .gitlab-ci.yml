@@ -1,4 +1,4 @@
-image: cern/cc7-base
+image: rootproject/root-cc7
 
 stages: 
     - build
