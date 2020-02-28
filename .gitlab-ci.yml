@@ -10,7 +10,12 @@ deployment:
         - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
 
     script:
-        - yum install -y cmake3.x86_64
+        - echo "Install CMake3"
+        - yum install -y cmake3.x86_64 centos-release-scl
+        - echo "Install gcc8"
+        - yum install -y devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
+        - scl enable devtoolset-8 -- bash
+        - source /opt/rh/devtoolset-8/enable
         - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
         - echo "Building" 
         - rm -rf build
