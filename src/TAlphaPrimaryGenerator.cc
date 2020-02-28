@@ -218,13 +218,13 @@ void TAlphaPrimaryGenerator::GeneratePrimaryVertex(G4Event *evt)
       while (fs>BraRatCum[fFs]) fFs++;
       
       TLorentzVector P(0.,0.,0., 2.*938.279E-3);
-      TGenPhaseSpace ps;     
-      ps.SetDecay(P,NumPar[fFs],ParMas[fFs]);
+      TGenPhaseSpace phase_space;     
+      phase_space.SetDecay(P,NumPar[fFs],ParMas[fFs]);
       
       G4double wt=0;
       while (1) // make unweighted events
 	{
-	  wt = ps.Generate(); // generate a phasespace configuration
+	  wt = phase_space.Generate(); // generate a phasespace configuration
 	  G4double wt_r = MaxWeigth[fFs]*G4UniformRand(); // random number between
 	                                                  // [0,MaxWeight]
 	  //printf("wt: %lf wt_r: %lf\n",wt,wt_r);
@@ -234,8 +234,8 @@ void TAlphaPrimaryGenerator::GeneratePrimaryVertex(G4Event *evt)
       for (G4int n=0; n<NumPar[fFs]; ++n) 
       {
             // Lorentz Vector corresponding to the Nth decay
-            TVector3 *p = new TVector3(ps.GetDecay(n)->Vect()); // Momentum in GeV/c
-            G4double E = ps.GetDecay(n)->E(); // Energy in GeV
+            TVector3 *p = new TVector3(phase_space.GetDecay(n)->Vect()); // Momentum in GeV/c
+            G4double E = phase_space.GetDecay(n)->E(); // Energy in GeV
           
             // Particle type
             G4int pdg  = ParNum[fFs][n];
