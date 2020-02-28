@@ -17,7 +17,7 @@ deployment:
         - scl enable devtoolset-8 -- bash
         - source /opt/rh/devtoolset-8/enable
         - echo "Installing X11 dependencies"
-        - yum install -y libX11-devel.x86_64 libXau-devel.x86_64 libXaw-devel.x86_64 libXext-devel.x86_64 libXft-devel.x86_64 libXi-devel.x86_64 libXmu-devel.x86_64 libXp-devel.x86_64 libXpm-devel.x86_64 libXt-devel.x86_64 libXtst-devel.x86_64 libXv-devel.x86_64 libXrender-devel.x86_64 libXrandr-devel.x86_64 libxc-devel.x86_64
+        - yum install -y motif-devel.x86_64
         - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
         - echo "Building" 
         - rm -rf build
