@@ -8,7 +8,6 @@ deployment:
 
     before_script:
         - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
-        - . /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.14.02/x86_64-fedora28-gcc81-opt/root/bin/thisroot.sh
 
     script:
         - echo "Install CMake3"
@@ -16,7 +15,6 @@ deployment:
         - echo "Install and Configuring gcc8"
         - yum install -y devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
         - scl enable devtoolset-8 -- bash
-        - source /opt/rh/devtoolset-8/enable
         - echo "Installing X11 dependencies"
         - yum install -y motif-devel.x86_64
         - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
