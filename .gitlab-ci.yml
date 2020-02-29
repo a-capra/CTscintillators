@@ -7,16 +7,15 @@ deployment:
     stage: build
 
     before_script:
+        - yum install -y centos-release-scl
+        - yum install -y devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
+        - scl enable devtoolset-8 -- bash
+        - . /opt/rh/devtoolset-8/enable
+        - yum install -y cmake3.x86_64 centos-release-scl
+        - yum install -y motif-devel.x86_64
         - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
 
     script:
-        - echo "Install CMake3"
-        - yum install -y cmake3.x86_64 centos-release-scl
-        - echo "Install and Configuring gcc8"
-        - yum install -y devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
-        - scl enable devtoolset-8 -- bash
-        - echo "Installing X11 dependencies"
-        - yum install -y motif-devel.x86_64
         - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
         - echo "Building" 
         - rm -rf build
