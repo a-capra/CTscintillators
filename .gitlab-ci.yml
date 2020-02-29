@@ -13,15 +13,13 @@ deployment:
         - . /opt/rh/devtoolset-8/enable
         - yum install -y cmake3.x86_64 centos-release-scl
         - yum install -y motif-devel.x86_64
-        - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh
+        - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt/bin/geant4.sh
 
     script:
-        - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt-MT/bin/geant4.sh | tail -1
+        - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt/bin/geant4.sh | tail -1
         - echo "Building" 
         - rm -rf build
         - mkdir build
         - cd build
         - cmake3 .. -DCMAKE_INSTALL_PREFIX=..
         - cmake3 --build . --target install
-
-     
