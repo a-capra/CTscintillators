@@ -7,13 +7,17 @@ deployment:
     stage: build
 
     before_script:
-        - . /opt/rh/devtoolset-8/enable
+        - yum install -y centos-release-scl
+        - yum install -y devtoolset-8-gcc devtoolset-8-gcc-c++ devtoolset-8-gcc-gfortran
+        - scl enable devtoolset-8 -- bash
+        - source /opt/rh/devtoolset-8/enable
         - yum install -y cmake3.x86_64
         - yum install -y motif-devel.x86_64
 
     script:
-        - . /opt/rh/devtoolset-8/enable
-        - . /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt/bin/geant4.sh
+        - scl enable devtoolset-8 -- bash
+        - source /opt/rh/devtoolset-8/enable
+        - source /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt/bin/geant4.sh
         - head -4 /cvmfs/geant4.cern.ch/geant4/10.5.p01/x86_64-centos7-gcc8-opt/bin/geant4.sh | tail -1
         - mkdir build
         - cd build
